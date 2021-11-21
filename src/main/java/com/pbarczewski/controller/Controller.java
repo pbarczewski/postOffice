@@ -1,46 +1,42 @@
 package com.pbarczewski.controller;
-
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.pbarczewski.entity.User;
-import com.pbarczewski.exceptions.CustomizeException;
-import com.pbarczewski.service.UserService;
+
+import com.pbarczewski.entity.Customer;
+import com.pbarczewski.input.Input;
+import com.pbarczewski.service.CustomerService;
+
 
 @RestController()
 @RequestMapping("/api")
 public class Controller {
-	private UserService userService;
-
+	private final CustomerService service;
+	
 	@Autowired
-	public Controller(UserService userService) {
-		this.userService = userService;
+	public Controller(CustomerService service) {
+		this.service = service;
 	}
 
 	@GetMapping("/users")
-	public List<User> getAllUsers(@RequestParam(required = false) String nick,
-			@RequestParam(required = false) Integer ticket) {
-		Object queryParam = null;
-		if (nick == null && ticket == null) {
-			return userService.allUsers();
-		}
-		if (nick != null && ticket != null) {
-			throw new CustomizeException("You can use only one parameter");
-		} else if (nick == null) {
-			queryParam = ticket;
-		} else {
-			queryParam = nick;
-		}
-		return userService.usersInQueue(userService.allUsers(), queryParam);
+	public List<Customer> allCustomers() {
+		return service.allCustomers();
 	}
-
+	
 	@PostMapping("/users")
-	public void saveUser(@RequestBody User user) {
-		userService.saveUser(user);
+	public void allUsers(@RequestBody Input input) throws Exception {
+		service.saveCustomer(input);
 	}
+	
+	@GetMapping("/users/{parameter}")
+	public List<Customer> singleUser(@PathVariable String parameter) throws Exception {
+		return service.remainingUsers(parameter);
+	}
+	
 }
